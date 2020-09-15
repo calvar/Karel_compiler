@@ -1,4 +1,11 @@
 BEGINNING-OF-PROGRAM
+	DEFINE-NEW-INSTRUCTION turnright AS
+	BEGIN
+		turnleft;
+		turnleft;
+		turnleft
+	END;
+
 	BEGINNING-OF-EXECUTION
 		move;
 		turnleft;
