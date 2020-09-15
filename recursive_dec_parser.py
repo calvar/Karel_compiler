@@ -32,27 +32,47 @@ def statement(tokens, idx, inp):
         inp = tokens[idx][1]
         idx += 1
         print(inp)
-        tokens, idx, inp =  statement(tokens, idx, inp)
+        if inp == ';':
+            inp = tokens[idx][1]
+            idx += 1
+            print(inp)
+            tokens, idx, inp =  statement(tokens, idx, inp)
     elif inp == 'turnleft':
         inp = tokens[idx][1]
         idx += 1
         print(inp)
-        tokens, idx, inp =  statement(tokens, idx, inp)
+        if inp == ';':
+            inp = tokens[idx][1]
+            idx += 1
+            print(inp)
+            tokens, idx, inp =  statement(tokens, idx, inp)
     elif inp == 'putbeeper':
         inp = tokens[idx][1]
         idx += 1
         print(inp)
-        tokens, idx, inp =  statement(tokens, idx, inp)
+        if inp == ';':
+            inp = tokens[idx][1]
+            idx += 1
+            print(inp)
+            tokens, idx, inp =  statement(tokens, idx, inp)
     elif inp == 'pickbeeper':
         inp = tokens[idx][1]
         idx += 1
         print(inp)
-        tokens, idx, inp =  statement(tokens, idx, inp)
+        if inp == ';':
+            inp = tokens[idx][1]
+            idx += 1
+            print(inp)
+            tokens, idx, inp =  statement(tokens, idx, inp)
     elif inp == 'turnoff':
         inp = tokens[idx][1]
         idx += 1
         print(inp)
-        tokens, idx, inp =  statement(tokens, idx, inp)
+        if inp == ';':
+            inp = tokens[idx][1]
+            idx += 1
+            print(inp)
+            tokens, idx, inp =  statement(tokens, idx, inp)
         """
         elif inp == 'ITERATE':
         
@@ -60,13 +80,6 @@ def statement(tokens, idx, inp):
         
         elif inp == 'IF':
         """
-    elif inp == ';':
-        if tokens[idx-2][1] != ';':
-            inp = tokens[idx][1]
-            idx += 1
-            print(inp)
-        else:
-            reject()
     return tokens, idx, inp
     
 def program(tokens, idx, inp):
@@ -76,7 +89,7 @@ def program(tokens, idx, inp):
         idx += 1
         print(inp)
         tokens, idx, inp =  statement(tokens, idx, inp)
-        if inp == 'END-OF-EXECUTION':
+        if inp == 'END-OF-EXECUTION' and tokens[idx-2][1] != ';':
             inp = tokens[idx][1]
             idx += 1
             print(inp)
@@ -92,7 +105,7 @@ def start(tokens, idx, inp):
         idx += 1
         print(inp)
         tokens, idx, inp = program(tokens, idx, inp)
-        if inp == 'END-OF-PROGRAM':
+        if inp == 'END-OF-PROGRAM' and tokens[idx-2][1] != ';':
             inp = tokens[idx][1]
             idx += 1
         else:

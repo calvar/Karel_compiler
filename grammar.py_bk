@@ -1,0 +1,31 @@
+#INCOMPLETE!!!!!!!
+
+import re
+from karel_tokenizer import tokens
+
+#GRAMMAR
+#-------
+number = tokens['number'].replace('^','').replace('$','')
+
+identifier = tokens['identifier'].replace('^','').replace('$','')
+
+proposition = tokens['proposition'].replace('^','').replace('$','')
+
+instruction = tokens['instruction'].replace('^','').replace('$','')+'|'+identifier
+
+statement = instruction
+
+block = r'[\s]*BEGIN[\s]*\\n'+statement
+
+#conditional = r'IF[\s]+'+proposition+'[\s]+THEN[\s]*'+
+
+
+#Karel = {
+#    'start': r'^[\s]*BEGIN[\s]*\n$'
+#}
+
+#print(Karel['start'])
+#print(re.match(Karel['start'],'\tBEGIN  \n'))
+
+
+#print(instruction)

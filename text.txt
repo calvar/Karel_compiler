@@ -1,9 +1,9 @@
 BEGINNING-OF-PROGRAM
 	BEGINNING-OF-EXECUTION
-		move
-		turnleft
-		turnleft
-		move
+		move;
+		turnleft;
+		turnleft;
+		move;
 		turnoff
 	END-OF-EXECUTION
 END-OF-PROGRAM
