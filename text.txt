@@ -11,6 +11,7 @@ BEGINNING-OF-PROGRAM
 		turnleft;
 		turnleft;
 		move;
+		turnright;
 		turnoff
 	END-OF-EXECUTION
 END-OF-PROGRAM

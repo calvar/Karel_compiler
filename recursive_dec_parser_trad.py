@@ -1,15 +1,19 @@
 from karel_tokenizer import tokenize 
 
 #-------------------------KAREL GRAMMAR------------------------------------
-#start -> BEGINNING-OF-PROGRAM program END-OF-PROGRAM
-#program -> definition* BEGINNING-OF-EXECUTION statement* END-OF-EXECUTION
-#definition -> DEFINE-NEW-INSTRUCTION identifier AS block END
-#block -> BEGIN statement* END
+#start -> BEGINNING-OF-PROGRAM {write("#BEGINNING OF PROGRAM\n\n")} program END-OF-PROGRAM {write("#END OF PROGRAM")}
+#program -> definition* BEGINNING-OF-EXECUTION {write("def main():\n") tabs+='\t'} statement* END-OF-EXECUTION {write("\n") tabs=tabs[:-1] write("main()\n\n")}
+#definition -> DEFINE-NEW-INSTRUCTION {write("def ")} identifier {write("{0}()".format(inp))} AS {write(":\n")} block
+#block -> BEGIN {tabs+='\t'} statement* END {write("\n") tabs=tabs[:-1]}
 #statement -> iteration | loop | conditional | instruction
 #iteration -> ITERATE number TIMES block
 #loop -> WHILE condition DO block
 #conditional -> IF condition THEN block (ELSE block)?
-#instruction -> move | turnleft | turnoff | putbeeper | pickbeeper
+#instruction -> move {write(tabs+"{0}().format(inp)\n")} |
+#               turnleft {write(tabs+"{0}().format(inp)\n")} |
+#               turnoff {write(tabs+"{0}().format(inp)\n")} |
+#               putbeeper {write(tabs+"{0}().format(inp)\n")} |
+#               pickbeeper {write(tabs+"{0}().format(inp)\n")}
 #condition -> next-to-a-beeper | not-next-to-a-beeper | front-is-clear |
 #             front-is-blocked | left-is-clear | left-is-blocked |
 #             right-is-clear | right-is-blocked | facing-north |
@@ -30,8 +34,9 @@ def accept():
     print("Program is accepted")
 
 
-def statement(tokens, idx, inp, instructions):
+def statement(tokens, idx, inp, instructions,tabs,OUT):
     if inp in instructions:
+        OUT.write(tabs+"{0}()\n".format(inp))
         inp = tokens[idx][1]
         idx += 1
         #print(inp)
@@ -39,7 +44,7 @@ def statement(tokens, idx, inp, instructions):
             inp = tokens[idx][1]
             idx += 1
             #print(inp)
-            tokens, idx, inp =  statement(tokens, idx, inp, instructions)
+            tokens, idx, inp =  statement(tokens, idx, inp, instructions,tabs,OUT)
         """
         elif inp == 'ITERATE':
         
@@ -50,13 +55,16 @@ def statement(tokens, idx, inp, instructions):
     return tokens, idx, inp
 
 
-def block(tokens, idx, inp, instructions):
+def block(tokens, idx, inp, instructions,tabs,OUT):
     if inp == 'BEGIN':
+        tabs += '\t' #trad
         inp = tokens[idx][1]
         idx += 1
         #print(inp)
-        tokens, idx, inp = statement(tokens, idx, inp, instructions)
+        tokens, idx, inp = statement(tokens, idx,inp,instructions,tabs,OUT)
         if inp == 'END' and tokens[idx-2][1] != ';':
+            OUT.write("\n") #trad
+            tabs = tabs[:-1] #trad
             inp = tokens[idx][1]
             idx += 1
             #print(inp)
@@ -64,37 +72,44 @@ def block(tokens, idx, inp, instructions):
                 inp = tokens[idx][1]
                 idx += 1
                 #print(inp)
-                tokens, idx, inp = block(tokens, idx, inp, instructions)
+                tokens, idx, inp = block(tokens, idx, inp, instructions,tabs,OUT)
         else:
             reject(tokens,idx)
     return tokens, idx, inp
 
         
-def program(tokens, idx, inp, instructions):
+def program(tokens, idx, inp, instructions,tabs,OUT):
     if inp == 'DEFINE-NEW-INSTRUCTION':
         if tokens[idx][0] == 'identifier':
             inp = tokens[idx][1]
             idx += 1
             #print(inp)
+            OUT.write("def {0}()".format(inp)) #trad
             instructions.append(inp)
             inp = tokens[idx][1]
             idx += 1
             #print(inp)
             if inp == 'AS':
+                OUT.write(":\n") #trad
                 inp = tokens[idx][1]
                 idx += 1
                 #print(inp)
-                tokens, idx, inp = block(tokens, idx, inp, instructions)
+                tokens, idx, inp = block(tokens,idx,inp,instructions,tabs,OUT)
             else:
                 reject(tokens,idx)
         else:
             reject(tokens,idx)
     if inp == 'BEGINNING-OF-EXECUTION' and tokens[idx-2][1] == ';':
+        OUT.write("def main():\n") #trad
+        tabs += '\t' #trad
         inp = tokens[idx][1]
         idx += 1
         #print(inp)
-        tokens, idx, inp =  statement(tokens, idx, inp, instructions)
+        tokens, idx, inp =  statement(tokens,idx,inp,instructions,tabs,OUT)
         if inp == 'END-OF-EXECUTION' and tokens[idx-2][1] != ';':
+            OUT.write("\n") #trad
+            tabs = tabs[:-1] #trad
+            OUT.write("main()\n\n") #trad
             inp = tokens[idx][1]
             idx += 1
             #print(inp)
@@ -105,13 +120,15 @@ def program(tokens, idx, inp, instructions):
     return tokens, idx, inp 
 
 
-def start(tokens, idx, inp, instructions):
+def start(tokens,idx,inp,instructions,tabs,OUT):
     if inp == 'BEGINNING-OF-PROGRAM':
+        OUT.write("#BEGINNING OF PROGRAM\n\n") #trad
         inp = tokens[idx][1]
         idx += 1
         #print(inp)
-        tokens, idx, inp = program(tokens, idx, inp, instructions)
+        tokens, idx, inp = program(tokens,idx,inp,instructions,tabs,OUT)
         if inp == 'END-OF-PROGRAM' and tokens[idx-2][1] != ';':
+            OUT.write("#END OF PROGRAM") #trad
             inp = tokens[idx][1]
             idx += 1
         else:
@@ -121,11 +138,11 @@ def start(tokens, idx, inp, instructions):
     return tokens, idx, inp 
 
 
-def parse(tokens, idx, inp, instructions):
+def parse(tokens,idx,inp,instructions,tabs,OUT):
     inp = tokens[idx][1]
     idx += 1
     #print(inp)
-    tokens, idx, inp = start(tokens, idx, inp, instructions)
+    tokens, idx, inp = start(tokens,idx,inp,instructions,tabs,OUT)
     if inp == '__END__':
         accept()
     else:
@@ -144,4 +161,9 @@ idx = 0
 inp = ''
 if code_tokens:
     #print(code_tokens)
-    parse(code_tokens, idx, inp, instructions)
+
+    OUT = open('text.py','w')
+    tabs = ''
+    parse(code_tokens, idx, inp, instructions, tabs, OUT)
+
+    OUT.close()
